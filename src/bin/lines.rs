@@ -10,9 +10,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let reader = std::io::BufReader::new(test_file);
     for line in reader.lines() {
-        let line = &line?;
-        let bytes = line.as_bytes();
-        let sum: u64 = bytes.iter().map(|i| *i as u64).sum();
+        let sum: u64 = line?.as_bytes().iter().map(|i| *i as u64).sum();
         writeln!(stdout, "{sum}")?;
     }
 
