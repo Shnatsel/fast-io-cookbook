@@ -8,3 +8,5 @@ edition = "2021"
 [dependencies]
 bstr = "1.6.0"
 memmap2 = "0.7.1"
+linereader = "0.4.0"
+simdutf8 = "0.1.4"
