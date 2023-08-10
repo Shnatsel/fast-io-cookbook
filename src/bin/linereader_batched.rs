@@ -6,7 +6,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let test_file = std::fs::File::open(test_file_path)?;
     let stdout = std::io::stdout();
-    // Lock the stdout once so we don't have to acquire the lock for every line, which is slow
+    // Lock the stdout once so we don't have to acquire the lock for every line written, which is slow
     let mut stdout = stdout.lock();
 
     // Cheat by finding the *last* line break instead of the first.

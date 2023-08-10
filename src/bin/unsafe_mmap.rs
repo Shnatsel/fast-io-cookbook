@@ -1,4 +1,3 @@
-use std::io::Write;
 use memmap2; // external crate that provides mmap()
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -8,8 +7,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Zero-copy "read" of the file contents (YOLO)
     let contents = unsafe { memmap2::Mmap::map(&test_file)? };
 
-    // Write the contents to stdout
-    let mut stdout = std::io::stdout();
-    stdout.write_all(&contents)?;
+    let sum: u64 = contents.iter().map(|i| *i as u64).sum();
+    println!("{sum}");
     Ok(())
 }

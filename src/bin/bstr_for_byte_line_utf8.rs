@@ -6,13 +6,14 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let test_file = std::fs::File::open(test_file_path)?;
     let stdout = std::io::stdout();
-    // Lock the stdout once so we don't have to acquire the lock for every line, which is slow
+    // Lock the stdout once so we don't have to acquire the lock for every line written, which is slow
     let mut stdout = stdout.lock();
 
     let mut reader = std::io::BufReader::new(test_file);
     reader.for_byte_line(|line| {
-        let _validated_utf8 = std::str::from_utf8(line);
-        stdout.write_all(line)?;
+        let _validated_utf8: Result<&str, std::str::Utf8Error> = std::str::from_utf8(line);
+        let sum: u64 = line.iter().map(|i| *i as u64).sum();
+        write!(stdout, "{sum}")?;
         Ok(true)
     })?;
 
