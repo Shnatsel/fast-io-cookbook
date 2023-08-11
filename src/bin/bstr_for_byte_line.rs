@@ -15,7 +15,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut reader = std::io::BufReader::new(test_file);
     reader.for_byte_line(|line| {
         let sum: u64 = line.iter().map(|i| *i as u64).sum();
-        write!(writer, "{sum}")?;
+        writeln!(writer, "{sum}")?;
         Ok(true)
     })?;
 

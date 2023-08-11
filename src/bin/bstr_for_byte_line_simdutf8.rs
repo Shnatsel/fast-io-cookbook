@@ -17,7 +17,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     reader.for_byte_line(|line| {
         let _validated_utf8 = simdutf8::basic::from_utf8(line);
         let sum: u64 = line.iter().map(|i| *i as u64).sum();
-        write!(writer, "{sum}")?;
+        writeln!(writer, "{sum}")?;
         Ok(true)
     })?;
 
