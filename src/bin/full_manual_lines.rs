@@ -16,10 +16,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Instead of reading the whole file in memory, read it in small-ish chunks that fit into CPU cache.
     let mut chunk = vec![0; 65536];
     let mut bytes_read = test_file.read(&mut chunk)?;
-    let mut search_start: usize = 0;
+    let mut search_start = 0;
+    let mut search_end = bytes_read;
     while bytes_read != 0 { // 0 bytes is how the OS indicates that we reached end of file
         let mut first_iteration = true;
-        let search_end = bytes_read;
         loop {
             match memchr::memchr('\n' as u8, &chunk[search_start..search_end]) {
                 Some(match_pos) => {
@@ -52,12 +52,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                         // This should be faster than a memset().
                         let mut new_buf = vec![0; chunk.len() * 2];
                         // Move the data we already read from the old buffer to the new, bigger one
-                        (&mut new_buf[..bytes_read]).copy_from_slice(&chunk[..bytes_read]);
-                        // Read more data into the new buffer to get it ready for searching
-                        let more_bytes_read = test_file.read(&mut new_buf[bytes_read..])?;
+                        (&mut new_buf[..search_end]).copy_from_slice(&chunk[..search_end]);
+                        // Read more data into the new buffer
+                        let more_bytes_read = test_file.read(&mut new_buf[search_end..])?;
                         // Replace the old buffer with the new one
                         _ = mem::replace(&mut chunk, new_buf);
-                        search_start = bytes_read;
+                        search_start = search_end;
+                        search_end = search_start + more_bytes_read;
                         bytes_read = more_bytes_read;
                     } else {
                         // Move the leftovers from the end to the beginning, and fill the remaining space
@@ -68,11 +69,18 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                         dest.copy_from_slice(src);
                         search_start = leftovers_len;
                         bytes_read = test_file.read(&mut chunk[leftovers_len..])?;
+                        search_end = search_start + bytes_read;
                     }
                     break
                 },
             }
         }
+    }
+    // Handle the final, non-terminated line
+    if search_end - search_start != 0 {
+        let line = &chunk[search_start..search_end];
+        let sum = line.iter().map(|i| *i as u64).sum::<u64>();
+        writeln!(writer, "{sum}")?;
     }
     Ok(())
 }
