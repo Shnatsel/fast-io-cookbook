@@ -14,7 +14,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut writer = std::io::BufWriter::new(stdout);
 
     // Instead of reading the whole file in memory, read it in small-ish chunks that fit into CPU cache.
-    let mut chunk = vec![0; 65536];
+    let mut chunk = vec![0; 16384];
     let mut bytes_read = test_file.read(&mut chunk)?;
     let mut search_start = 0;
     let mut search_end = bytes_read;
